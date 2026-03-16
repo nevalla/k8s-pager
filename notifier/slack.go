@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -40,6 +41,8 @@ func (s *SlackNotifier) Send(ctx context.Context, alert Alert) error {
 		return fmt.Errorf("marshal slack payload: %w", err)
 	}
 
+	slog.Debug("sending slack alert", "payload", string(body))
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.webhookURL, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
@@ -55,6 +58,14 @@ func (s *SlackNotifier) Send(ctx context.Context, alert Alert) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("slack returned status %d", resp.StatusCode)
 	}
+
+	slog.Info("slack alert sent",
+		"cluster", alert.Cluster,
+		"namespace", alert.Namespace,
+		"kind", alert.ResourceKind,
+		"name", alert.ResourceName,
+		"reason", alert.Reason,
+	)
 	return nil
 }
 
