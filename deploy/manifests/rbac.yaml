@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8s-pager
+  namespace: k8s-pager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k8s-pager
+rules:
+  # Watch events
+  - apiGroups: ["events.k8s.io"]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+  # Core resources for diagnostics
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "events", "nodes"]
+    verbs: ["get", "list"]
+  # Read-only access to all other resources (CRDs, custom resources)
+  # Needed for dynamic discovery and inspection of any resource kind
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8s-pager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: k8s-pager
+subjects:
+  - kind: ServiceAccount
+    name: k8s-pager
+    namespace: k8s-pager
