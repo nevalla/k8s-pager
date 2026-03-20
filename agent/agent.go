@@ -34,7 +34,8 @@ func NewTroubleshootingAgent(llm LLMClient, executor *kube.Executor) *Troublesho
 func (a *TroubleshootingAgent) Diagnose(ctx context.Context, req DiagnosisRequest) (string, error) {
 	system := "You are a Kubernetes diagnostics agent. Your job is to investigate issues and identify the root cause. " +
 		"Do NOT suggest fixes or remediation steps. Only report what is wrong and why. " +
-		"Be concise. Format your final response in Slack-compatible markdown."
+		"Be concise. Format your response using Slack mrkdwn syntax (*bold*, _italic_, `code`). " +
+		"Do NOT wrap your response in code fences (```)."
 
 	messages := []Message{
 		{

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -75,15 +76,15 @@ func buildSlackPayload(alert Alert) map[string]any {
 			"type": "header",
 			"text": map[string]string{
 				"type": "plain_text",
-				"text": fmt.Sprintf("K8s Alert: %s [%s]", alert.Reason, alert.Cluster),
+				"text": fmt.Sprintf("K8s Alert: %s", alert.Reason),
 			},
 		},
 		{
 			"type": "section",
 			"fields": []map[string]string{
-				{"type": "mrkdwn", "text": fmt.Sprintf("*Cluster:*\n%s", alert.Cluster)},
-				{"type": "mrkdwn", "text": fmt.Sprintf("*Namespace:*\n%s", alert.Namespace)},
-				{"type": "mrkdwn", "text": fmt.Sprintf("*%s:*\n%s", alert.ResourceKind, alert.ResourceName)},
+				{"type": "mrkdwn", "text": fmt.Sprintf("*Cluster:*\n%s", slackEscape(alert.Cluster))},
+				{"type": "mrkdwn", "text": fmt.Sprintf("*Namespace:*\n%s", slackEscape(alert.Namespace))},
+				{"type": "mrkdwn", "text": fmt.Sprintf("*%s:*\n%s", alert.ResourceKind, slackEscape(alert.ResourceName))},
 				{"type": "mrkdwn", "text": fmt.Sprintf("*Events:*\n%d in %s", alert.Count, alert.Window)},
 			},
 		},
@@ -98,20 +99,41 @@ func buildSlackPayload(alert Alert) map[string]any {
 			"type": "divider",
 		},
 		{
-			"type": "header",
-			"text": map[string]string{
-				"type": "plain_text",
-				"text": "AI Diagnosis",
-			},
-		},
-		{
 			"type": "section",
 			"text": map[string]string{
 				"type": "mrkdwn",
-				"text": alert.Diagnosis,
+				"text": fmt.Sprintf("*AI Diagnosis*\n\n%s", stripCodeFences(alert.Diagnosis)),
 			},
 		},
 	}
 
 	return map[string]any{"blocks": blocks}
+}
+
+// slackEscape prevents Slack from interpreting special sequences like :emoji: in user-provided text.
+func slackEscape(s string) string {
+	s = strings.ReplaceAll(s, "&", "&amp;")
+	s = strings.ReplaceAll(s, "<", "&lt;")
+	s = strings.ReplaceAll(s, ">", "&gt;")
+	s = strings.ReplaceAll(s, ":", "\u200B:\u200B")
+	return s
+}
+
+// stripCodeFences removes markdown code fences that LLMs sometimes wrap responses in.
+func stripCodeFences(s string) string {
+	lines := strings.Split(s, "\n")
+	if len(lines) < 2 {
+		return s
+	}
+	first := strings.TrimSpace(lines[0])
+	if strings.HasPrefix(first, "```") {
+		lines = lines[1:]
+	}
+	if len(lines) > 0 {
+		last := strings.TrimSpace(lines[len(lines)-1])
+		if last == "```" {
+			lines = lines[:len(lines)-1]
+		}
+	}
+	return strings.Join(lines, "\n")
 }
