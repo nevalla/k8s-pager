@@ -36,17 +36,6 @@ spec:
             #   value: ""
             # - name: TELEGRAM_MENTION
             #   value: "@openclaw"
-            # - name: WHATSAPP_API_URL
-            #   value: ""
-            # - name: WHATSAPP_API_TOKEN
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: k8s-pager
-            #       key: whatsapp-api-token
-            # - name: WHATSAPP_RECIPIENT
-            #   value: ""
-            # - name: WHATSAPP_MENTION
-            #   value: "@openclaw"
             - name: LLM_API_KEY
               valueFrom:
                 secretKeyRef:

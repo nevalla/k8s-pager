@@ -15,6 +15,7 @@ type TelegramNotifier struct {
 	botToken   string
 	chatID     string
 	mention    string
+	baseURL    string
 	httpClient *http.Client
 }
 
@@ -23,6 +24,7 @@ func NewTelegramNotifier(botToken, chatID, mention string) *TelegramNotifier {
 		botToken:   botToken,
 		chatID:     chatID,
 		mention:    mention,
+		baseURL:    "https://api.telegram.org",
 		httpClient: &http.Client{Timeout: 10 * time.Second},
 	}
 }
@@ -41,7 +43,7 @@ func (t *TelegramNotifier) Send(ctx context.Context, alert Alert) error {
 		return fmt.Errorf("marshal telegram payload: %w", err)
 	}
 
-	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", t.botToken)
+	url := fmt.Sprintf("%s/bot%s/sendMessage", t.baseURL, t.botToken)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
