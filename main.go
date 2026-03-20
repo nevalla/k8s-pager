@@ -53,12 +53,26 @@ func main() {
 	}
 	troubleshooter := agent.NewTroubleshootingAgent(llmClient, executor)
 
-	var notify notifier.Notifier
+	var notifiers []notifier.Notifier
 	if cfg.SlackWebhookURL != "" {
-		notify = notifier.NewSlackNotifier(cfg.SlackWebhookURL)
-	} else {
-		slog.Info("SLACK_WEBHOOK_URL not set, using log notifier")
+		notifiers = append(notifiers, notifier.NewSlackNotifier(cfg.SlackWebhookURL, cfg.SlackMention))
+	}
+	if cfg.TelegramBotToken != "" {
+		notifiers = append(notifiers, notifier.NewTelegramNotifier(cfg.TelegramBotToken, cfg.TelegramChatID))
+	}
+	if cfg.WhatsAppAPIURL != "" {
+		notifiers = append(notifiers, notifier.NewWhatsAppNotifier(cfg.WhatsAppAPIURL, cfg.WhatsAppAPIToken, cfg.WhatsAppRecipient))
+	}
+
+	var notify notifier.Notifier
+	switch len(notifiers) {
+	case 0:
+		slog.Info("no notifiers configured, using log notifier")
 		notify = notifier.NewLogNotifier()
+	case 1:
+		notify = notifiers[0]
+	default:
+		notify = notifier.NewMultiNotifier(notifiers...)
 	}
 
 	handler := func(ctx context.Context, ev *eventsv1.Event) {
@@ -114,7 +128,7 @@ func main() {
 
 			alert.Diagnosis = diagnosis
 			if err := notify.Send(diagCtx, alert); err != nil {
-				slog.Error("failed to send slack alert", "error", err)
+				slog.Error("failed to send alert", "error", err)
 			}
 		}()
 	}

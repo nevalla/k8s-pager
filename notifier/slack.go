@@ -11,32 +11,22 @@ import (
 	"time"
 )
 
-type Alert struct {
-	Cluster      string
-	Namespace    string
-	ResourceKind string
-	ResourceName string
-	Reason       string
-	Count        int
-	Window       time.Duration
-	Message      string
-	Diagnosis    string
-}
-
 type SlackNotifier struct {
 	webhookURL string
+	mention    string
 	httpClient *http.Client
 }
 
-func NewSlackNotifier(webhookURL string) *SlackNotifier {
+func NewSlackNotifier(webhookURL, mention string) *SlackNotifier {
 	return &SlackNotifier{
 		webhookURL: webhookURL,
+		mention:    mention,
 		httpClient: &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
 func (s *SlackNotifier) Send(ctx context.Context, alert Alert) error {
-	payload := buildSlackPayload(alert)
+	payload := s.buildPayload(alert)
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("marshal slack payload: %w", err)
@@ -70,7 +60,7 @@ func (s *SlackNotifier) Send(ctx context.Context, alert Alert) error {
 	return nil
 }
 
-func buildSlackPayload(alert Alert) map[string]any {
+func (s *SlackNotifier) buildPayload(alert Alert) map[string]any {
 	blocks := []map[string]any{
 		{
 			"type": "header",
@@ -105,6 +95,15 @@ func buildSlackPayload(alert Alert) map[string]any {
 				"text": fmt.Sprintf("*AI Diagnosis*\n\n%s", stripCodeFences(alert.Diagnosis)),
 			},
 		},
+	}
+
+	if s.mention != "" {
+		blocks = append(blocks, map[string]any{
+			"type": "context",
+			"elements": []map[string]string{
+				{"type": "mrkdwn", "text": fmt.Sprintf("<@%s>", s.mention)},
+			},
+		})
 	}
 
 	return map[string]any{"blocks": blocks}

@@ -25,6 +25,24 @@ spec:
                 secretKeyRef:
                   name: k8s-pager
                   key: slack-webhook-url
+            # - name: SLACK_MENTION
+            #   value: ""
+            # - name: TELEGRAM_BOT_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: k8s-pager
+            #       key: telegram-bot-token
+            # - name: TELEGRAM_CHAT_ID
+            #   value: ""
+            # - name: WHATSAPP_API_URL
+            #   value: ""
+            # - name: WHATSAPP_API_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: k8s-pager
+            #       key: whatsapp-api-token
+            # - name: WHATSAPP_RECIPIENT
+            #   value: ""
             - name: LLM_API_KEY
               valueFrom:
                 secretKeyRef:

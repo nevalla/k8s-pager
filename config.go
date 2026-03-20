@@ -20,6 +20,14 @@ type Config struct {
 
 	ClusterName     string
 	SlackWebhookURL string
+	SlackMention    string
+
+	TelegramBotToken string
+	TelegramChatID   string
+
+	WhatsAppAPIURL    string
+	WhatsAppAPIToken  string
+	WhatsAppRecipient string
 
 	// LLM provider: "anthropic", "openai"
 	LLMProvider string
@@ -85,6 +93,14 @@ func LoadConfig() (Config, error) {
 	c.ClusterName = os.Getenv("CLUSTER_NAME")
 
 	c.SlackWebhookURL = os.Getenv("SLACK_WEBHOOK_URL")
+	c.SlackMention = os.Getenv("SLACK_MENTION")
+
+	c.TelegramBotToken = os.Getenv("TELEGRAM_BOT_TOKEN")
+	c.TelegramChatID = os.Getenv("TELEGRAM_CHAT_ID")
+
+	c.WhatsAppAPIURL = os.Getenv("WHATSAPP_API_URL")
+	c.WhatsAppAPIToken = os.Getenv("WHATSAPP_API_TOKEN")
+	c.WhatsAppRecipient = os.Getenv("WHATSAPP_RECIPIENT")
 
 	if v := os.Getenv("LLM_PROVIDER"); v != "" {
 		c.LLMProvider = v
