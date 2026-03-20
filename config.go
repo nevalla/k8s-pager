@@ -26,6 +26,9 @@ type Config struct {
 	TelegramChatID   string
 	TelegramMention  string
 
+	OpenClawURL   string
+	OpenClawToken string
+
 	// LLM provider: "anthropic", "openai"
 	LLMProvider string
 	LLMAPIKey   string
@@ -95,6 +98,9 @@ func LoadConfig() (Config, error) {
 	c.TelegramBotToken = os.Getenv("TELEGRAM_BOT_TOKEN")
 	c.TelegramChatID = os.Getenv("TELEGRAM_CHAT_ID")
 	c.TelegramMention = os.Getenv("TELEGRAM_MENTION")
+
+	c.OpenClawURL = os.Getenv("OPENCLAW_URL")
+	c.OpenClawToken = os.Getenv("OPENCLAW_TOKEN")
 
 	if v := os.Getenv("LLM_PROVIDER"); v != "" {
 		c.LLMProvider = v

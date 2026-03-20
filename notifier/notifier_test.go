@@ -178,6 +178,50 @@ func TestTelegramNotifier_NoMention(t *testing.T) {
 	}
 }
 
+func TestOpenClawNotifier_Send(t *testing.T) {
+	var receivedBody map[string]string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/hooks/agent" {
+			t.Errorf("expected /hooks/agent, got %s", r.URL.Path)
+		}
+		if r.Header.Get("x-openclaw-token") != "test-token" {
+			t.Error("expected x-openclaw-token header")
+		}
+		json.NewDecoder(r.Body).Decode(&receivedBody)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	oc := NewOpenClawNotifier(server.URL, "test-token")
+	err := oc.Send(context.Background(), sampleAlert())
+	if err != nil {
+		t.Fatalf("Send() error: %v", err)
+	}
+
+	if receivedBody["wakeMode"] != "now" {
+		t.Errorf("expected wakeMode=now, got %s", receivedBody["wakeMode"])
+	}
+	if receivedBody["name"] != "k8s-pager" {
+		t.Errorf("expected name=k8s-pager, got %s", receivedBody["name"])
+	}
+	if !strings.Contains(receivedBody["message"], "BackOff") {
+		t.Error("expected message to contain reason")
+	}
+}
+
+func TestOpenClawNotifier_HTTPError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer server.Close()
+
+	oc := NewOpenClawNotifier(server.URL, "bad-token")
+	err := oc.Send(context.Background(), sampleAlert())
+	if err == nil {
+		t.Fatal("expected error on 401 response")
+	}
+}
+
 func TestMultiNotifier_FansOut(t *testing.T) {
 	var calls int
 	n1 := &mockNotifier{fn: func() error { calls++; return nil }}

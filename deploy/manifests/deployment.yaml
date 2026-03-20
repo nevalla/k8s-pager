@@ -36,6 +36,13 @@ spec:
             #   value: ""
             # - name: TELEGRAM_MENTION
             #   value: "@openclaw"
+            # - name: OPENCLAW_URL
+            #   value: "https://openclaw.example.com"
+            # - name: OPENCLAW_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: k8s-pager
+            #       key: openclaw-token
             - name: LLM_API_KEY
               valueFrom:
                 secretKeyRef:

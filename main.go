@@ -60,6 +60,9 @@ func main() {
 	if cfg.TelegramBotToken != "" {
 		notifiers = append(notifiers, notifier.NewTelegramNotifier(cfg.TelegramBotToken, cfg.TelegramChatID, cfg.TelegramMention))
 	}
+	if cfg.OpenClawURL != "" {
+		notifiers = append(notifiers, notifier.NewOpenClawNotifier(cfg.OpenClawURL, cfg.OpenClawToken))
+	}
 
 	var notify notifier.Notifier
 	switch len(notifiers) {
