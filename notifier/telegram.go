@@ -14,19 +14,21 @@ import (
 type TelegramNotifier struct {
 	botToken   string
 	chatID     string
+	mention    string
 	httpClient *http.Client
 }
 
-func NewTelegramNotifier(botToken, chatID string) *TelegramNotifier {
+func NewTelegramNotifier(botToken, chatID, mention string) *TelegramNotifier {
 	return &TelegramNotifier{
 		botToken:   botToken,
 		chatID:     chatID,
+		mention:    mention,
 		httpClient: &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
 func (t *TelegramNotifier) Send(ctx context.Context, alert Alert) error {
-	text := buildTelegramMessage(alert)
+	text := t.buildMessage(alert)
 
 	payload := map[string]string{
 		"chat_id":    t.chatID,
@@ -66,10 +68,13 @@ func (t *TelegramNotifier) Send(ctx context.Context, alert Alert) error {
 	return nil
 }
 
-func buildTelegramMessage(alert Alert) string {
+func (t *TelegramNotifier) buildMessage(alert Alert) string {
 	e := telegramEscape
 	var b strings.Builder
 
+	if t.mention != "" {
+		fmt.Fprintf(&b, "%s ", e(t.mention))
+	}
 	fmt.Fprintf(&b, "*K8s Alert: %s*\n\n", e(alert.Reason))
 	fmt.Fprintf(&b, "*Cluster:* %s\n", e(alert.Cluster))
 	fmt.Fprintf(&b, "*Namespace:* %s\n", e(alert.Namespace))

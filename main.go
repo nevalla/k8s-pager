@@ -58,10 +58,10 @@ func main() {
 		notifiers = append(notifiers, notifier.NewSlackNotifier(cfg.SlackWebhookURL, cfg.SlackMention))
 	}
 	if cfg.TelegramBotToken != "" {
-		notifiers = append(notifiers, notifier.NewTelegramNotifier(cfg.TelegramBotToken, cfg.TelegramChatID))
+		notifiers = append(notifiers, notifier.NewTelegramNotifier(cfg.TelegramBotToken, cfg.TelegramChatID, cfg.TelegramMention))
 	}
 	if cfg.WhatsAppAPIURL != "" {
-		notifiers = append(notifiers, notifier.NewWhatsAppNotifier(cfg.WhatsAppAPIURL, cfg.WhatsAppAPIToken, cfg.WhatsAppRecipient))
+		notifiers = append(notifiers, notifier.NewWhatsAppNotifier(cfg.WhatsAppAPIURL, cfg.WhatsAppAPIToken, cfg.WhatsAppRecipient, cfg.WhatsAppMention))
 	}
 
 	var notify notifier.Notifier

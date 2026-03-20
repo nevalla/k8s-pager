@@ -24,10 +24,12 @@ type Config struct {
 
 	TelegramBotToken string
 	TelegramChatID   string
+	TelegramMention  string
 
 	WhatsAppAPIURL    string
 	WhatsAppAPIToken  string
 	WhatsAppRecipient string
+	WhatsAppMention   string
 
 	// LLM provider: "anthropic", "openai"
 	LLMProvider string
@@ -97,10 +99,12 @@ func LoadConfig() (Config, error) {
 
 	c.TelegramBotToken = os.Getenv("TELEGRAM_BOT_TOKEN")
 	c.TelegramChatID = os.Getenv("TELEGRAM_CHAT_ID")
+	c.TelegramMention = os.Getenv("TELEGRAM_MENTION")
 
 	c.WhatsAppAPIURL = os.Getenv("WHATSAPP_API_URL")
 	c.WhatsAppAPIToken = os.Getenv("WHATSAPP_API_TOKEN")
 	c.WhatsAppRecipient = os.Getenv("WHATSAPP_RECIPIENT")
+	c.WhatsAppMention = os.Getenv("WHATSAPP_MENTION")
 
 	if v := os.Getenv("LLM_PROVIDER"); v != "" {
 		c.LLMProvider = v

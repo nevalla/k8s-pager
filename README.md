@@ -70,9 +70,11 @@ docker pull ghcr.io/nevalla/k8s-pager:latest
 | `SLACK_MENTION` | (none) | Slack user/bot ID to mention in alerts (e.g., `U12345678`) |
 | `TELEGRAM_BOT_TOKEN` | (none) | Telegram bot token from @BotFather |
 | `TELEGRAM_CHAT_ID` | (none) | Telegram chat/group ID to send alerts to |
+| `TELEGRAM_MENTION` | (none) | Mention to prepend in group chats (e.g., `@openclaw`) |
 | `WHATSAPP_API_URL` | (none) | WhatsApp Business Cloud API base URL |
 | `WHATSAPP_API_TOKEN` | (none) | WhatsApp API bearer token |
 | `WHATSAPP_RECIPIENT` | (none) | WhatsApp recipient phone number |
+| `WHATSAPP_MENTION` | (none) | Mention to prepend in group chats (e.g., `@openclaw`) |
 | `CLUSTER_NAME` | from kubeconfig | Cluster identifier shown in alerts |
 | `WATCH_NAMESPACE` | all namespaces | Restrict to a single namespace |
 | `EVENT_REASONS` | see above | Comma-separated list of event reasons to watch |
@@ -94,11 +96,13 @@ export SLACK_MENTION=U12345678  # optional: tag a user or bot
 # Telegram
 export TELEGRAM_BOT_TOKEN=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
 export TELEGRAM_CHAT_ID=-1001234567890
+export TELEGRAM_MENTION=@openclaw  # optional: trigger bot in group chats
 
 # WhatsApp (Business Cloud API)
 export WHATSAPP_API_URL=https://graph.facebook.com/v21.0/PHONE_NUMBER_ID
 export WHATSAPP_API_TOKEN=your-token
 export WHATSAPP_RECIPIENT=15551234567
+export WHATSAPP_MENTION=@openclaw  # optional: trigger bot in group chats
 ```
 
 ### Using different LLM providers

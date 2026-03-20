@@ -15,20 +15,22 @@ type WhatsAppNotifier struct {
 	apiURL     string
 	apiToken   string
 	recipient  string
+	mention    string
 	httpClient *http.Client
 }
 
-func NewWhatsAppNotifier(apiURL, apiToken, recipient string) *WhatsAppNotifier {
+func NewWhatsAppNotifier(apiURL, apiToken, recipient, mention string) *WhatsAppNotifier {
 	return &WhatsAppNotifier{
 		apiURL:     strings.TrimRight(apiURL, "/"),
 		apiToken:   apiToken,
 		recipient:  recipient,
+		mention:    mention,
 		httpClient: &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
 func (w *WhatsAppNotifier) Send(ctx context.Context, alert Alert) error {
-	text := buildWhatsAppMessage(alert)
+	text := w.buildMessage(alert)
 
 	payload := map[string]any{
 		"messaging_product": "whatsapp",
@@ -72,9 +74,12 @@ func (w *WhatsAppNotifier) Send(ctx context.Context, alert Alert) error {
 	return nil
 }
 
-func buildWhatsAppMessage(alert Alert) string {
+func (w *WhatsAppNotifier) buildMessage(alert Alert) string {
 	var b strings.Builder
 
+	if w.mention != "" {
+		fmt.Fprintf(&b, "%s ", w.mention)
+	}
 	fmt.Fprintf(&b, "⚠️ K8s Alert: %s\n\n", alert.Reason)
 	fmt.Fprintf(&b, "Cluster: %s\n", alert.Cluster)
 	fmt.Fprintf(&b, "Namespace: %s\n", alert.Namespace)
